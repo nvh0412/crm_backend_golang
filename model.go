@@ -60,3 +60,13 @@ func (c *customer) update(db *sql.DB) error {
 
   return nil
 }
+
+func (c *customer) destroy(db *sql.DB) error {
+  _, err := db.Exec("DELETE FROM customers where id = $1", c.ID)
+
+  if err != nil {
+    return err
+  }
+
+  return nil
+}

@@ -113,3 +113,21 @@ func TestUpdateCustomer(t *testing.T) {
 
   checkResponseCode(t, http.StatusOK, response.Code)
 }
+
+func TestDeleteCustomer(t *testing.T) {
+  tearDown()
+
+  req, _ := http.NewRequest("DELETE", "/customers/1", nil)
+
+  response := executeRequest(req)
+
+  checkResponseCode(t, http.StatusNotFound, response.Code)
+
+  addCustomer(1)
+
+  req2, _ := http.NewRequest("DELETE", "/customers/1", nil)
+
+  response2 := executeRequest(req2)
+
+  checkResponseCode(t, http.StatusOK, response2.Code)
+}

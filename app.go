@@ -41,6 +41,7 @@ func (a *App) InitializeRoute()  {
   a.Router.HandleFunc("/customers/{id:[0-9]+}", a.getCustomer).Methods("GET")
   a.Router.HandleFunc("/customers", a.createCustomer).Methods("POST")
   a.Router.HandleFunc("/customers/{id:[0-9]+}", a.updateCustomer).Methods("PUT")
+  a.Router.HandleFunc("/customers/{id:[0-9]+}", a.destroyCustomer).Methods("DELETE")
 }
 
 func (a *App) getCustomer(w http.ResponseWriter, r *http.Request) {
@@ -115,18 +116,36 @@ func (a *App) updateCustomer(w http.ResponseWriter, r *http.Request) {
     respondWithError(w, http.StatusNotFound, err.Error())
   }
 
-  fmt.Println(c)
-
   decoder := json.NewDecoder(r.Body)
   if err := decoder.Decode(&c); err != nil {
     respondWithError(w, http.StatusBadRequest, "Invalid params")
     return
   }
 
-  fmt.Println(c)
-
   if err := c.update(a.DB); err != nil {
-    fmt.Println(err)
+    respondWithError(w, http.StatusUnprocessableEntity, "Unprocessable Entity")
+    return
+  }
+
+  respondWithJSON(w, http.StatusOK, c)
+}
+
+func (a *App) destroyCustomer(w http.ResponseWriter, r *http.Request) {
+  vars := mux.Vars(r)
+
+  id, err := strconv.Atoi(vars["id"])
+
+  if err != nil {
+    respondWithError(w, http.StatusBadRequest, err.Error())
+  }
+
+  c := customer{ID: id}
+
+  if err := c.get(a.DB); err != nil {
+    respondWithError(w, http.StatusNotFound, err.Error())
+  }
+
+  if err := c.destroy(a.DB); err != nil {
     respondWithError(w, http.StatusUnprocessableEntity, "Unprocessable Entity")
     return
   }
