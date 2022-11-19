@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +18,8 @@ const tableCreationQuery = `CREATE TABLE IF NOT EXISTS customers
   name TEXT NOT NULL,
   role TEXT NOT NULL,
   email TEXT NOT NULL,
-  phone TEXT NOT NULL
+  phone TEXT NOT NULL,
+  contacted BOOLEAN NOT NULL
 )
 `
 func addCustomer(count int) {
@@ -26,7 +28,7 @@ func addCustomer(count int) {
   }
 
   for i := 0; i < count; i++ {
-    a.DB.Exec("INSERT INTO customers(name, role, email, phone) VALUES ($1, $2, $3, $4)", "Customer" + strconv.Itoa(i), "Role", "customer" + strconv.Itoa(i) + "@gmail.com", "012345667")
+    a.DB.Exec("INSERT INTO customers(name, role, email, phone, contacted) VALUES ($1, $2, $3, $4, $5)", "Customer" + strconv.Itoa(i), "Role", "customer" + strconv.Itoa(i) + "@gmail.com", "012345667", true)
   }
 }
 
@@ -61,6 +63,7 @@ func TestMain(m *testing.M)  {
     os.Getenv("APP_DB_PASSWORD"),
     os.Getenv("APP_DB_NAME"),
   )
+  tearDown()
 
   tearUp()
   code := m.Run()
@@ -86,4 +89,15 @@ func TestGetCustomer(t *testing.T)  {
   response := executeRequest(req)
 
   checkResponseCode(t, http.StatusOK, response.Code)
+}
+
+func TestCreateCustomer(t *testing.T) {
+  tearDown()
+
+  body := []byte(`{"name": "Gopher", "role": "employee", "email": "go@go.com", "phone": "123123123", "contacted": false}`)
+
+  req, _ := http.NewRequest("POST", "/customers", bytes.NewBuffer(body))
+  response := executeRequest(req)
+
+  checkResponseCode(t, http.StatusCreated, response.Code)
 }

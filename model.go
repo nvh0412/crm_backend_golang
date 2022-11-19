@@ -10,10 +10,11 @@ type customer struct {
   Role string
   Email string
   Phone string
+  Contacted bool
 }
 
-func (c *customer) getCustomer(db *sql.DB) error {
-  return db.QueryRow("SELECT id, name, role, email, phone FROM customers WHERE id = $1", c.ID).Scan(&c.ID, &c.Name, &c.Role, &c.Email, &c.Phone)
+func (c *customer) get(db *sql.DB) error {
+  return db.QueryRow("SELECT id, name, role, email, phone, contacted FROM customers WHERE id = $1", c.ID).Scan(&c.ID, &c.Name, &c.Role, &c.Email, &c.Phone, &c.Contacted)
 }
 
 func getCustomers(db *sql.DB, start, count int) ([]customer, error)  {
@@ -30,7 +31,7 @@ func getCustomers(db *sql.DB, start, count int) ([]customer, error)  {
   for rows.Next() {
     var c customer
 
-    if err := rows.Scan(&c.ID, &c.Name, &c.Role, &c.Email, &c.Phone); err != nil {
+    if err := rows.Scan(&c.ID, &c.Name, &c.Role, &c.Email, &c.Phone, &c.Contacted); err != nil {
       return nil, err
     }
 
@@ -38,4 +39,14 @@ func getCustomers(db *sql.DB, start, count int) ([]customer, error)  {
   }
 
   return customers, err
+}
+
+func (c *customer) create(db *sql.DB) error {
+  err := db.QueryRow("INSERT INTO customers(name, role, email, phone, contacted) VALUES ($1, $2, $3, $4, $5) RETURNING id", c.Name, c.Role, c.Email, c.Phone, c.Contacted).Scan(&c.ID)
+
+  if err != nil {
+    return err
+  }
+
+  return nil
 }

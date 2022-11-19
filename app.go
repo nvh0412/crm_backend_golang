@@ -39,6 +39,7 @@ func (a *App) Run(addr string)  {
 func (a *App) InitializeRoute()  {
   a.Router.HandleFunc("/customers", a.getCustomers).Methods("GET")
   a.Router.HandleFunc("/customers/{id:[0-9]+}", a.getCustomer).Methods("GET")
+  a.Router.HandleFunc("/customers", a.createCustomer).Methods("POST")
 }
 
 func (a *App) getCustomer(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +53,7 @@ func (a *App) getCustomer(w http.ResponseWriter, r *http.Request) {
 
   customer := customer{ID: id}
 
-  if err := customer.getCustomer(a.DB); err != nil {
+  if err := customer.get(a.DB); err != nil {
     respondWithError(w, http.StatusNotFound, err.Error())
   }
 
@@ -78,6 +79,24 @@ func (a *App) getCustomers(w http.ResponseWriter, r *http.Request) {
   }
 
   respondWithJSON(w, http.StatusOK, customers)
+}
+
+func (a *App) createCustomer(w http.ResponseWriter, r *http.Request) {
+  var c customer
+
+  decoder := json.NewDecoder(r.Body)
+  if err := decoder.Decode(&c); err != nil {
+    respondWithError(w, http.StatusBadRequest, "Invalid params")
+    return
+  }
+
+  if err := c.create(a.DB); err != nil {
+    fmt.Println(err)
+    respondWithError(w, http.StatusUnprocessableEntity, "Unprocessable Entity")
+    return
+  }
+
+  respondWithJSON(w, http.StatusCreated, c)
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string)  {
