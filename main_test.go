@@ -45,7 +45,7 @@ func TestMain(m *testing.M)  {
   os.Exit(code)
 }
 
-func TestEmptyTable(t *testing.T) {
+func TestGetCustomers(t *testing.T) {
   tearDown()
 
   req, _ := http.NewRequest("GET", "/customers", nil)

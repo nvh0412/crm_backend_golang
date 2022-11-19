@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"errors"
 )
 
 type customer struct {
@@ -14,5 +13,25 @@ type customer struct {
 }
 
 func getCustomers(db sql.DB, start, count int) ([]customer, error)  {
-  return nil, errors.New("Not implemented")
+  rows, err := db.Query(
+    "SELECT id, name, role, email, phone FROM customers LIMIT $1 OFFSET $2",
+    count, start)
+
+  if err != nil {
+    return nil, err
+  }
+
+  customers := []customer{}
+
+  for rows.Next() {
+    var c customer
+
+    if err := rows.Scan(&c.ID, &c.Name, &c.Role, &c.Email, &c.Phone); err != nil {
+      return nil, err
+    }
+
+    customers = append(customers, c)
+  }
+
+  return customers, err
 }
