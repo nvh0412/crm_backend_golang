@@ -33,11 +33,30 @@ func (a *App) Initializer(user, password, dbname string) {
 }
 
 func (a *App) Run(addr string)  {
-  log.Fatal(http.ListenAndServe(":3010", a.Router))
+  log.Fatal(http.ListenAndServe(addr, a.Router))
 }
 
 func (a *App) InitializeRoute()  {
   a.Router.HandleFunc("/customers", a.getCustomers).Methods("GET")
+  a.Router.HandleFunc("/customers/{id:[0-9]+}", a.getCustomer).Methods("GET")
+}
+
+func (a *App) getCustomer(w http.ResponseWriter, r *http.Request) {
+  vars := mux.Vars(r)
+
+  id, err := strconv.Atoi(vars["id"])
+
+  if err != nil {
+    respondWithError(w, http.StatusBadRequest, err.Error())
+  }
+
+  customer := customer{ID: id}
+
+  if err := customer.getCustomer(a.DB); err != nil {
+    respondWithError(w, http.StatusNotFound, err.Error())
+  }
+
+  respondWithJSON(w, http.StatusOK, customer)
 }
 
 func (a *App) getCustomers(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +72,7 @@ func (a *App) getCustomers(w http.ResponseWriter, r *http.Request) {
     start = 0
   }
 
-  customers, err := getCustomers(*a.DB, start, count)
+  customers, err := getCustomers(a.DB, start, count)
   if err != nil {
     respondWithError(w, http.StatusInternalServerError, err.Error())
   }

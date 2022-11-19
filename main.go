@@ -1,6 +1,9 @@
 package main
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 func main() {
   a := App{}
@@ -11,5 +14,7 @@ func main() {
     os.Getenv("APP_DB_NAME"),
   )
 
-  a.Run(":8000")
+  fmt.Println("Start server at 3000...")
+
+  a.Run(":3000")
 }

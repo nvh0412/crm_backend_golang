@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"testing"
 )
 
@@ -19,6 +20,15 @@ const tableCreationQuery = `CREATE TABLE IF NOT EXISTS customers
   phone TEXT NOT NULL
 )
 `
+func addCustomer(count int) {
+  if (count < 1) {
+    count = 1
+  }
+
+  for i := 0; i < count; i++ {
+    a.DB.Exec("INSERT INTO customers(name, role, email, phone) VALUES ($1, $2, $3, $4)", "Customer" + strconv.Itoa(i), "Role", "customer" + strconv.Itoa(i) + "@gmail.com", "012345667")
+  }
+}
 
 func tearUp() {
   if _, err := a.DB.Exec(tableCreationQuery); err != nil {
@@ -31,6 +41,19 @@ func tearDown() {
   a.DB.Exec("ALTER SEQUENCE customers_id_seq RESTART WITH 1")
 }
 
+func executeRequest(req *http.Request) *httptest.ResponseRecorder {
+  rr := httptest.NewRecorder()
+
+  a.Router.ServeHTTP(rr, req)
+
+  return rr
+}
+
+func checkResponseCode(t *testing.T, expected, actual int) {
+  if expected != actual {
+    t.Errorf("Expected response code %d. Got %d\n", expected, actual)
+  }
+}
 
 func TestMain(m *testing.M)  {
   a.Initializer(
@@ -55,17 +78,12 @@ func TestGetCustomers(t *testing.T) {
   checkResponseCode(t, http.StatusOK, response.Code)
 }
 
-func executeRequest(req *http.Request) *httptest.ResponseRecorder {
-  rr := httptest.NewRecorder()
+func TestGetCustomer(t *testing.T)  {
+  tearDown()
+  addCustomer(1)
 
-  a.Router.ServeHTTP(rr, req)
+  req, _ := http.NewRequest("GET", "/customers/1", nil)
+  response := executeRequest(req)
 
-  return rr
+  checkResponseCode(t, http.StatusOK, response.Code)
 }
-
-func checkResponseCode(t *testing.T, expected, actual int) {
-  if expected != actual {
-    t.Errorf("Expected response code %d. Got %d\n", expected, actual)
-  }
-}
-
