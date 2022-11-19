@@ -101,3 +101,15 @@ func TestCreateCustomer(t *testing.T) {
 
   checkResponseCode(t, http.StatusCreated, response.Code)
 }
+
+func TestUpdateCustomer(t *testing.T) {
+  tearDown()
+  addCustomer(1)
+
+  body := []byte(`{"name": "Gopher", "role": "employee", "email": "go@go.com", "phone": "123123123", "contacted": false}`)
+
+  req, _ := http.NewRequest("PUT", "/customers/1", bytes.NewBuffer(body))
+  response := executeRequest(req)
+
+  checkResponseCode(t, http.StatusOK, response.Code)
+}

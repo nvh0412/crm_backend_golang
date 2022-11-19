@@ -50,3 +50,13 @@ func (c *customer) create(db *sql.DB) error {
 
   return nil
 }
+
+func (c *customer) update(db *sql.DB) error {
+  _, err := db.Exec("UPDATE customers SET name=$1, role=$2, email=$3, phone=$4, contacted=$5 WHERE id = $6", c.Name, c.Role, c.Email, c.Phone, c.Contacted, c.ID)
+
+  if err != nil {
+    return err
+  }
+
+  return nil
+}
