@@ -19,7 +19,7 @@ func (c *customer) get(db *sql.DB) error {
 
 func getCustomers(db *sql.DB, start, count int) ([]customer, error)  {
   rows, err := db.Query(
-    "SELECT id, name, role, email, phone FROM customers LIMIT $1 OFFSET $2",
+    "SELECT id, name, role, email, phone, contacted FROM customers LIMIT $1 OFFSET $2",
     count, start)
 
   if err != nil {

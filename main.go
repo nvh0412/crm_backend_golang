@@ -14,7 +14,7 @@ func main() {
     os.Getenv("APP_DB_NAME"),
   )
 
-  fmt.Println("Start server at 3000...")
+  fmt.Println("Starting HTTP server at 3000...")
 
   a.Run(":3000")
 }
