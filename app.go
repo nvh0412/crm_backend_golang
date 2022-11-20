@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -48,6 +49,7 @@ func (a *App) InitializeRoute()  {
   a.Router.HandleFunc("/customers", a.createCustomer).Methods("POST")
   a.Router.HandleFunc("/customers/{id:[0-9]+}", a.updateCustomer).Methods("PUT")
   a.Router.HandleFunc("/customers/{id:[0-9]+}", a.destroyCustomer).Methods("DELETE")
+  a.Router.HandleFunc("/customers/bulk", a.updateCustomersInBatch).Methods("PUT")
 }
 
 func (a *App) getCustomer(w http.ResponseWriter, r *http.Request) {
@@ -105,6 +107,38 @@ func (a *App) createCustomer(w http.ResponseWriter, r *http.Request) {
   }
 
   respondWithJSON(w, http.StatusCreated, c)
+}
+
+func (a *App) updateCustomersInBatch(w http.ResponseWriter, r *http.Request) {
+  var customers []customer
+
+  decoder := json.NewDecoder(r.Body)
+  if err := decoder.Decode(&customers); err != nil {
+    respondWithError(w, http.StatusBadRequest, "Invalid params")
+    return
+  }
+
+  ctx := context.Background()
+  tx, err := a.DB.BeginTx(ctx, nil)
+  if err != nil {
+    respondWithError(w, http.StatusInternalServerError, err.Error())
+  }
+
+  defer tx.Rollback()
+
+  for _, customer := range customers {
+    if err := customer.update(a.DB); err != nil {
+      tx.Rollback()
+      respondWithError(w, http.StatusUnprocessableEntity, err.Error())
+      return
+    }
+  }
+
+  if err = tx.Commit(); err != nil {
+    respondWithError(w, http.StatusInternalServerError, err.Error())
+  }
+
+  respondWithJSON(w, http.StatusOK, customers)
 }
 
 func (a *App) updateCustomer(w http.ResponseWriter, r *http.Request) {

@@ -19,7 +19,8 @@ const tableCreationQuery = `CREATE TABLE IF NOT EXISTS customers
   role TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT NOT NULL,
-  contacted BOOLEAN NOT NULL
+  contacted BOOLEAN NOT NULL,
+  UNIQUE(name)
 )
 `
 func addCustomer(count int) {
@@ -113,6 +114,25 @@ func TestUpdateCustomer(t *testing.T) {
   response := executeRequest(req)
 
   checkResponseCode(t, http.StatusOK, response.Code)
+}
+
+func TestUpdateCustomerInBatch(t *testing.T) {
+  tearDown()
+  addCustomer(2)
+
+  duplicateNamebody := []byte(`[{"id": 1, "name": "Gopher 2"}, {"id": 2, "name": "Gopher 2"}]`)
+
+  req, _ := http.NewRequest("PUT", "/customers/bulk", bytes.NewBuffer(duplicateNamebody))
+  response := executeRequest(req)
+
+  checkResponseCode(t, http.StatusUnprocessableEntity, response.Code)
+
+  body := []byte(`[{"id": 1, "name": "Gopher 2"}, {"id": 2, "name": "Gopher N"}]`)
+
+  req2, _ := http.NewRequest("PUT", "/customers/bulk", bytes.NewBuffer(body))
+  response2 := executeRequest(req2)
+
+  checkResponseCode(t, http.StatusOK, response2.Code)
 }
 
 func TestDeleteCustomer(t *testing.T) {
