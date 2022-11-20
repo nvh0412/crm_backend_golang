@@ -4,7 +4,7 @@
 
 ### Status
 
-TBD
+![main workflow](https://github.com/nvh0412/crm_backend_golang/actions/workflows/go.yml/badge.svg)
 
 ## About the project
 
