@@ -8,9 +8,11 @@ import (
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/nvh0412/crm_backend_golang/app"
 )
 
-var a App
+var a app.App
 
 const tableCreationQuery = `CREATE TABLE IF NOT EXISTS customers
 (

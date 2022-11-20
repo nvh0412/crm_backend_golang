@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/nvh0412/crm_backend_golang/app"
 )
 
 func main() {
-  a := App{}
+  a := app.App{}
 
   a.Initializer(
     os.Getenv("APP_DB_USERNAME"),
