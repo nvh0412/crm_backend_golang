@@ -16,6 +16,10 @@ The project represent the backend of a Customer Relationship management (CRM) we
 - Updating a customer's information
 - Removing a customer
 
+## Host
+
+https://morning-shadow-4454.fly.dev/customers
+
 ### API docs
 
 - Getting a single customer through a /customers/{id} path
