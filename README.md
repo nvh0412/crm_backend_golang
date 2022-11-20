@@ -53,6 +53,31 @@ $ curl --location --request PUT 'localhost:3000/customers/1' \
     "name": "Hoa Nguyen",
     "role": "Manager"
 }'
+
+```
+
+- Updating customers in a batch `/customers/bulk` path
+```
+$ curl --location --request PUT 'https://morning-shadow-4454.fly.dev/customers/bulk' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "id": 1,
+        "name": "Hoa Nguyen",
+        "role": "Software Engineer",
+        "email": "nvh0412@gmail.com",
+        "phone": "123123123",
+        "contacted": false
+    },
+    {
+        "id": 4,
+        "name": "Hoa Nguyen 4",
+        "role": "Software Engineer",
+        "email": "nvh0412@gmail.com",
+        "phone": "123123123",
+        "contacted": true
+    }
+]'
 ```
 
 - Deleting a customer through a /customers/{id} path
