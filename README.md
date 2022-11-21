@@ -20,6 +20,11 @@ The project represent the backend of a Customer Relationship management (CRM) we
 
 https://morning-shadow-4454.fly.dev/customers
 
+## Prerequisite
+- Go 1.x
+- PostgresSQL (Non-test environment)
+- SQLite (Test environment) `test.db`
+
 ### API docs
 
 - Getting a single customer through a /customers/{id} path
@@ -94,6 +99,7 @@ Make sure that we've configured these system variables on our dev machine
     APP_DB_USERNAME: ...
     APP_DB_PASSWORD: ...
     APP_DB_NAME: ...
+    APP_DB_CONNECTION_STRING: ... // if we set this value, the app will prioritize this value rager than user/pwd envs
 ```
 
 ### 2. Get dependencies
@@ -114,11 +120,15 @@ Make sure that we've configured these system variables on our dev machine
 ```
     $ ./crm_backend_golang
 ```
+OR
+```
+    $ go run main.go
+```
 
 ### 5. Run test
 
 ```
-    $ go test .
+    $ go test
 ```
 
 

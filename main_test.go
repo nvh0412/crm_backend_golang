@@ -16,7 +16,7 @@ var a app.App
 
 const tableCreationQuery = `CREATE TABLE IF NOT EXISTS customers
 (
-  id SERIAL,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
   role TEXT NOT NULL,
   email TEXT NOT NULL,
@@ -43,7 +43,7 @@ func tearUp() {
 
 func tearDown() {
   a.DB.Exec("DELETE FROM customers")
-  a.DB.Exec("ALTER SEQUENCE customers_id_seq RESTART WITH 1")
+  a.DB.Exec("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'customers'")
 }
 
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
@@ -62,10 +62,11 @@ func checkResponseCode(t *testing.T, expected, actual int) {
 
 func TestMain(m *testing.M)  {
   a.Initializer(
-    os.Getenv("APP_DB_USERNAME"),
-    os.Getenv("APP_DB_PASSWORD"),
-    os.Getenv("APP_DB_NAME"),
-    os.Getenv("APP_DB_CONNECTION_STRING"),
+    "sqlite3",
+    "",
+    "",
+    "",
+    "./test.db",
   )
   tearDown()
 

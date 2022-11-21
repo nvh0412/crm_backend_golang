@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	_ "github.com/mattn/go-sqlite3"
 	_ "github.com/lib/pq"
 )
 
@@ -18,17 +19,21 @@ type App struct {
   DB *sql.DB
 }
 
-func (a *App) Initializer(user, password, dbname, connStr string) {
+func (a *App) Initializer(driver, user, password, dbname, connStr string) {
   var connectionString string
 
   if connStr != "" {
-    connectionString = fmt.Sprintf("%s?sslmode=disable", connStr)
+    if driver == "postgres" {
+      connectionString = fmt.Sprintf("%s?sslmode=disable", connStr)
+    } else {
+      connectionString = connStr
+    }
   } else {
     connectionString = fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
   }
 
   var err error
-  a.DB, err = sql.Open("postgres", connectionString)
+  a.DB, err = sql.Open(driver, connectionString)
 
   if err != nil {
     log.Fatal(err)
@@ -101,7 +106,6 @@ func (a *App) createCustomer(w http.ResponseWriter, r *http.Request) {
   }
 
   if err := c.create(a.DB); err != nil {
-    fmt.Println(err)
     respondWithError(w, http.StatusUnprocessableEntity, "Unprocessable Entity")
     return
   }

@@ -11,6 +11,7 @@ func main() {
   a := app.App{}
 
   a.Initializer(
+    "postgres",
     os.Getenv("APP_DB_USERNAME"),
     os.Getenv("APP_DB_PASSWORD"),
     os.Getenv("APP_DB_NAME"),
