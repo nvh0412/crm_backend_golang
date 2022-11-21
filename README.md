@@ -25,6 +25,20 @@ https://morning-shadow-4454.fly.dev/customers
 - PostgresSQL (Non-test environment)
 - SQLite (Test environment) `test.db`
 
+- Create a database and a customer table
+
+```
+CREATE TABLE IF NOT EXISTS customers
+(
+  id SERIAL,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  UNIQUE(name)
+)
+```
+
 ### API docs
 
 - Getting a single customer through a /customers/{id} path
